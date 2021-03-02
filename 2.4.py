@@ -29,10 +29,10 @@ gr = badges_df.groupBy("UserId").agg(countDistinct("Name"))
 gr = gr.withColumnRenamed("count(Name)","numberOfBadges")
 
 # Filter for all w. less than three badges
-gr = gr.filter(gr.numberOfBadges <= 3)
+gr = gr.filter(gr.numberOfBadges < 3)
 
 
-# counts the number
+# counts the number of users. If included directly in the print there were some strange effects.
 number_of_users_with_less_than_three_badges = gr.count()
 
 # prints the number
