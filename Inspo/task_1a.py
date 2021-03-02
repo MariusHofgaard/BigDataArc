@@ -1,5 +1,9 @@
 from pyspark import SparkConf, SparkContext
 import csv
+import time
+
+time.sleep(10)
+
 
 sc = SparkContext()
 
