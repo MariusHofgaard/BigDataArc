@@ -4,10 +4,7 @@ def task2_3():
     sparkConf = SparkConf()
     sc = SparkContext(conf=sparkConf)
 
-    folder_name = "./sourcefiles/"
-    posts_file_name = "posts.csv"
-
-    posts_file = sc.textFile(folder_name + posts_file_name)
+    posts_file = sc.textFile("/sourcefiles/posts.csv")
     posts_rdd  = posts_file.map(lambda line: line.split("\t"))
 
     questions = posts_rdd.filter(lambda line: line[1] == "1")

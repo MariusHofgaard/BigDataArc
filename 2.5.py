@@ -4,10 +4,8 @@ def task2_5():
     sparkConf = SparkConf()
     sc = SparkContext(conf=sparkConf)
 
-    folder_name = "./sourcefiles/"
-    users_file_name = "users.csv"
 
-    users_file = sc.textFile(folder_name + users_file_name)
+    users_file = sc.textFile("sourcefiles/users.csv")
     users_rdd = users_file.map(lambda line: line.split("\t"))
 
     # Reomoving header
