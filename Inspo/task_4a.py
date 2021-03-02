@@ -12,6 +12,8 @@ friendship_graph = friendship_graph.zipWithIndex().filter(lambda tup: tup[1] > 0
 friendship_graph = friendship_graph.map(lambda line : line.split(','))
 
 
+
+
 #grouping by node so each node is in tuple with all its destination nodes
 destination_tuples = friendship_graph.groupByKey().map(lambda x : (x[0], list(x[1])))
 

@@ -15,7 +15,6 @@ import time
 
 sc = SparkContext()
 
-
 time.sleep(10)
 post_table = sc.textFile("sourcefiles/posts.csv")
 number_of_lines_post = post_table.map(lambda line : line.split('\t')).count()
