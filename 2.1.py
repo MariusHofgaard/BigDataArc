@@ -5,36 +5,48 @@ def task2_1():
     sparkConf = SparkConf()
     sc = SparkContext(conf=sparkConf)
 
-    folder_name        = "./sourcefiles/"
-    posts_file_name    = "posts.csv"
-    comments_file_name = "comments.csv"
+    # Creating an RDD for the posts
+    posts_table = sc.textFile("sourcefiles/posts.csv")
+    posts_rdd  = posts_table.map(lambda line: line.split("\t"))
 
-    posts_file = sc.textFile(folder_name + posts_file_name)
-    posts_rdd  = posts_file.map(lambda line: line.split("\t"))
+    # Creating RDD for comments
+    comments_table = sc.textFile("sourcefiles/comments.csv")
+    # Removing header row comments
+    comments_table = comments_table.zipWithIndex().filter(lambda r: r[1] > 0).map(lambda r: r[0])
 
+    # Splitting for tabs
+    comments = comments_table.map(lambda line: line.split('\t'))
+
+
+    # Get the questions and answers from the posts cile
     questions = posts_rdd.filter(lambda line: line[1] == "1")
+
+    # Get the questions and answers from the posts rdd
     answers = posts_rdd.filter(lambda line: line[1] == "2")
 
-    comment_header     = sc.textFile(folder_name + comments_file_name).first()
-    comments_file      = sc.textFile(folder_name + comments_file_name)
-    comments_no_header = comments_file.filter(lambda line: not str(line).startswith(comment_header))
-    comments           = comments_no_header.map(lambda line: line.split("\t"))
-
-
+    # decode from base64
     decoded_questions = questions.map(lambda line: str(base64.b64decode(line[5]))).map(
         lambda line: line.replace("<p>", " ").replace("</p>", " ").replace("&#xA;", " "))
+
+    # decode from base64
     decoded_answers   = answers.map(lambda line: str(base64.b64decode(line[5]))).map(
         lambda line: line.replace("<p>", " ").replace("</p>", " ").replace("&#xA;", " "))
+
+    # decode from base64
     decoded_comments  = comments.map(lambda line: str(base64.b64decode(line[2])))
 
+    # Evaluate lengths of the different parameters and generate table w. values
     length_questions = decoded_questions.map(lambda line: len(line))
     length_answers   = decoded_answers.map(lambda line: len(line))
     length_comments  = decoded_comments.map(lambda line: len(line))
 
-    avg_length_questions = length_questions.reduce(lambda a, b: a + b) / length_questions.count()
-    avg_length_answers   = length_answers.reduce(lambda a, b: a + b) / length_answers.count()
-    avg_length_comments  = length_comments.reduce(lambda a, b: a + b) / length_comments.count()
 
+    # Reduce to sum for calculating the average
+    avg_length_questions = length_questions.sum() / length_questions.count()
+    avg_length_answers   = length_answers.sum() / length_answers.count()
+    avg_length_comments  = length_comments.sum() / length_comments.count()
+
+    # print the results
     print("Average length questions: " + str(avg_length_questions))
     print("Average length answers  : " + str(avg_length_answers))
     print("Average length comments : "+ str(avg_length_comments))

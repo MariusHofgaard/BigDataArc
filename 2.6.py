@@ -34,5 +34,5 @@ def task2_6():
     entropy = - (comments_per_user.map(lambda x: x[1] / total_length * math.log(x[1] / total_length, 2)).sum() )
     return entropy
 
-print (task2_6())
+print ("The entropy of the RDD is: ", round(task2_6(),4))
 
