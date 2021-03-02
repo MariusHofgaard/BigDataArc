@@ -32,6 +32,6 @@ def task2_5():
     sum_bottum = std_up_votes * std_down_votes
     pearsons_r = sum_top / sum_bottum
 
-    print("Person's r is: {} ".format(float(pearsons_r)))
+    print("Person's r is: " + str(float(pearsons_r)))
 
 task2_5()

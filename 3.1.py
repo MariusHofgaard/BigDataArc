@@ -5,26 +5,37 @@ from pyspark import SparkConf, SparkContext
 from pyspark.sql.session import SparkSession
 from pyspark.sql import SQLContext
 
+def task3_1():
+    sparkConf = SparkConf()
+    sc = SparkContext(conf=sparkConf)
 
-sc = SparkContext()
+    folder_name = "./sourcefiles/"
+    posts_file_name = "posts.csv"
+    users_file_name = "users.csv"
+    comments_file_name = "comments.csv"
 
-spark = SparkSession(sc)
+    posts_file = sc.textFile(folder_name + posts_file_name)
+    posts_rdd = posts_file.map(lambda line: line.split("\t"))
+    users_file = sc.textFile(folder_name + users_file_name)
+    users_rdd = users_file.map(lambda line: line.split("\t"))
+    comments_file = sc.textFile(folder_name + comments_file_name)
+    comments_rdd = comments_file.map(lambda line: line.split("\t"))
 
 
-# Retrieve the users.csv file
+    users = users_rdd.filter(lambda line: not line[0] == '"Id"')
+    comments = comments_rdd.filter(lambda comment: comment[0] != '"PostId"')\
+                           .map(lambda comment: (comment[0], comment[4]))
 
-users_table = spark.read.option("delimiter", "\t").csv("sourcefiles/users.csv", inferSchema = True, header = True)
-users_table.show()
+    posts_with_comments = posts_rdd.filter(lambda post: post[11] != "0").map(
+        lambda post: (post[0], post[6]))
 
-# Remove the header
+    # (PostId, (OwnerUserId, CommentUserId))
+    posts_and_comment = comments_rdd.join(posts_with_comments)
 
-# Generate a overview
+    # (CommentUserId, OwnerUserId)
+    commentid_ownerid = posts_and_comment.map(lambda post: (post[1][0], post[1][1]))
 
-# Retrieve the comments.csv file
-comments_table = sc.textFile("sourcefiles/comments.csv")
-
-# Remove the header
-
-# Generate a overview
-comments_overveiw = comments_table.map(lambda line : line.split('\t'))
+    # Add weight (count comments from i to j) :     (CommentUserId, (OwnerUserId, Weight))
+    temp_graph = commentid_ownerid.map(lambda row: (
+        row, 1)).reduceByKey(lambda a, b: a + b)
 

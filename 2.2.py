@@ -25,13 +25,13 @@ def task2_2():
     newest_question = questions.reduce(
         lambda a, b: a if str_to_time(a[2]) > str_to_time(b[2]) else b)
 
-    oldest_question_name = users_rdd.filter(
+    oldest_question_user = users_rdd.filter(
         lambda user: user[0] == oldest_question[6]).collect()[0]
-    newest_question_name = users_rdd.filter(
+    newest_question_user = users_rdd.filter(
         lambda user: user[0] == newest_question[6]).collect()[0]
 
-    print("Oldest question: {} posted by {}".format(oldest_question[2], oldest_question_name[3]))
-    print("Newest question: {} posted by {}".format(newest_question[2], newest_question_name[3]))
+    print("Oldest question: " + oldest_question[2] + " posted by " +oldest_question_user[3])
+    print("Newest question: " + newest_question[2] + " posted by " +newest_question_user[3])
 
 
 task2_2()

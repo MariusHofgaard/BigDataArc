@@ -26,9 +26,9 @@ def task2_3():
         .sortBy(lambda x: x[1])\
         .reduce(lambda a, b: a if a[1] > b[1] else b)
 
-    print("UserID most questions: {}\nNumber of questions: {}\n".format(
-        gratest_number_of_questions[0], gratest_number_of_questions[1]))
-    print("UserID most answers: {}\nNumber of answers: {}\n".format(
-        gratest_number_of_answers[0], gratest_number_of_answers[1]))
+    print("UserID most questions: " + str(gratest_number_of_questions[0]) +
+          "\nNumber of questions: " + str(gratest_number_of_questions[1]))
+    print("\nUserID most answers: " + str(gratest_number_of_answers[0]) +
+          "\nNumber of questions: " + str(gratest_number_of_answers[1]))
 
 task2_3()
