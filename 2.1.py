@@ -36,6 +36,6 @@ def task2_1():
 
     print("Average length questions: {} ".format(int(avg_length_questions)))
     print("Average length answers  : {} ".format(int(avg_length_answers)))
-    print("Average length comments : {} \n".format(int(avg_length_comments)))
+    print("Average length comments : {} ".format(int(avg_length_comments)))
 
 task2_1()
