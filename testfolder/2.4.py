@@ -18,7 +18,7 @@ sc = SparkContext()
 spark = SparkSession(sc)
 
 
-# Import the CSV as a dataframe
+# Import the CSV as a dataframe. This could be solved with RDD and/or map, but wanted to check this method.
 badges_df = spark.read.option("delimiter", "\t").csv("sourcefiles/badges.csv", inferSchema = True, header = True)
 
 # Count the number of distinct badges for each user
