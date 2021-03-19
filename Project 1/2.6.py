@@ -1,6 +1,6 @@
 """
-
-Calculate the entropy of the users w. at least one comment
+File created for TDT 4305 Big Data Architecture
+Written by: Marius Hofgaard and Petter Norsted
 """
 
 from pyspark import SparkContext

@@ -1,16 +1,15 @@
 """
 File created for TDT 4305 Big Data Architecture
-Written by:
+Written by: Marius Hofgaard and Petter Norsted
 
 Goal is to import the CSV files into the sparkcontext and print out the number of lines for each of the files.
 
 
-
+The linesplit is not actually needed here, but added for future reference.
 """
 
 
 from pyspark import SparkConf, SparkContext
-import csv
 import time
 
 sc = SparkContext()

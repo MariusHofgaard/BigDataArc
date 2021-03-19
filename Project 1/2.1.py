@@ -1,3 +1,8 @@
+"""
+File created for TDT 4305 Big Data Architecture
+Written by: Marius Hofgaard and Petter Norsted
+"""
+
 from pyspark import SparkContext, SparkConf
 import base64
 

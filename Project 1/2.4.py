@@ -1,10 +1,14 @@
 """
+File created for TDT 4305 Big Data Architecture
+Written by: Marius Hofgaard and Petter Norsted
 
 
 4 Calculate the number of users who received less than three badges
 
 
-I used dataframe
+We used dataframe for this task, partly to evaluate the time difference.
+As we did not complete task 3 we decide to leave it as DF so to show that we can handle dfs'
+
 
 """
 

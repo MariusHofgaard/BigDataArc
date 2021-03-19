@@ -1,3 +1,8 @@
+"""
+File created for TDT 4305 Big Data Architecture
+Written by: Marius Hofgaard and Petter Norsted
+"""
+
 from pyspark import SparkContext, SparkConf
 from datetime import datetime as dt
 
@@ -30,6 +35,7 @@ def task2_2():
     oldest_question_user = users_rdd.filter(lambda user: user[0] == oldest_question[6]).collect()[0]
 
     newest_question_user = users_rdd.filter(lambda user: user[0] == newest_question[6]).collect()[0]
+
 
     print("Oldest question: " + oldest_question[2] + " posted by " + oldest_question_user[3])
     print("Newest question: " + newest_question[2] + " posted by " + newest_question_user[3])
