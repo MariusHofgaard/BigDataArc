@@ -25,6 +25,8 @@ from pyspark import SparkContext
 from pyspark.sql.session import SparkSession
 from pyspark.sql.functions import countDistinct
 import re
+import df
+import base64
 
 sc = SparkContext()
 spark = SparkSession(sc)
@@ -37,11 +39,10 @@ posts_rdd = posts_file.map(lambda line: line.split("\t"))
 # posts_rdd = posts_rdd.zipWithIndex().filter(lambda tup: tup[1] > 0).map(lambda tup: tup[0])
 
 # TODO lower of all text
-posts_lower = posts_rdd.map(lambda line: (x[0], base64.b64decode(x[5]).lower()))
+posts_lower = posts_rdd.map(lambda line: (line[0], base64.b64decode(line[5]).lower()))
 
 
 # Clean text for punctuation and symbols except from "DOT"
-
 
 def eliminate_unwanted_symbols(string):
     """
@@ -76,20 +77,19 @@ tokenized = clean_text.map(lambda line: (line[0], tokenize_line(line[1])))
 
 # Remove the tokens that are smaller than three characters long from the sequence of the tokens
 
-# tokenized_length_over_3 = tokenized.map(lambda token: if len(token) < 3):
+tokenized_length_over_3 = tokenized.filter(lambda token: (token[0], len(token[1]) > 3))
 
 
 
 
 # # reading the stop words file, encoding in ascii and representing as an array
-#
-# stopwords = sc.textFile("stopwords.txt")  # From the github site
-# stopwords = stopwords.map(lambda x: x.encode('ascii', 'ignore')).collect()
-#
-# # mapping all reviews and filtering out stopwords
+stopwords = sc.textFile("/sourcefiles/stopwords.txt")  # From the github site
+encoded_stopwords = stopwords.map(lambda x: x.encode('ascii', 'ignore')).collect()
+
+tokenized_without_stopwords = [word for word in tokenized_length_over_3 if not word in encoded_stopwords] # https://stackabuse.com/removing-stop-words-from-strings-in-python/
+
+# mapping all reviews and filtering out stopwords
 # posts = posts.map(lambda x: (x[0], [xi for xi in x[1].lower().split() if xi not in stopwords]))
-# #
-#
 
 
 
