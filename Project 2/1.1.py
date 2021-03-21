@@ -92,7 +92,9 @@ for get_random_lines in tokenized.take(3):
     print(get_random_lines)
 
 # Importing stopwords.
-stopwords = sc.textFile("./sourcefiles/stopwords.txt")  # From the github site
+stopwords = sc.textFile("./sourcefiles/stopwords.txt")  # From the github site. Can't see the reasoning in  hardcoding.
+
+
 encoded_stopwords = stopwords.map(lambda x: x.encode('ascii', 'ignore')).collect()
 
 
@@ -120,6 +122,7 @@ tokenized_length_over_3 = tokenized.map(lambda line: remove_short_words(line) )
 print(tokenized_length_over_3.count()) # Should return the same amount of rows, as the removed elements are within the row.
 
 
+### spark-submit main.py --input_path /home/users/data --post_id ID_OF_POST
 
 
 # def generate_sliding_windows(terms, window_size):
