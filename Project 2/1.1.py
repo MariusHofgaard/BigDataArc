@@ -56,15 +56,13 @@ def eliminate_unwanted_symbols(line):
     Output: Cleaned string containing only "DOT" characters, words and whitespaces.
     """
 
-    # need to remove things that is inside brackets etc. <p> <a href> etc
-    # print(line[1])
-    # line = re.sub(r'\([^)]*\)', '', str(line[1]))
+    pre_processed = re.sub('<[^<]+?>', '', str(line[1][3:])) # removes html tags from text such as <p>, additionally removes teh first b character.
 
+    new_string = re.sub(r'[^\w\s]', '',pre_processed)  # Removes everything that is not \w : word \s : spaces & \. : "DOT". It seems to me that every sentence starts with bp - thus [3:]
 
-    new_string = re.sub(r'[^\w\s]', '', str(line[1]))  # Removes everything that is not \w : word \s : spaces & \. : "DOT". It seems to me that every sentence starts with bp - thus [3:]
+    new_string = re.sub(r'xaxa', " ", new_string) # After looking at the output there is a lot of xaxa w/o meaning. Seems to be a bit dangerous - as there would be words with xa.
 
-
-    return (line[0],new_string)
+    return (line[0],new_string) #
 
 
 
@@ -112,8 +110,8 @@ def remove_short_words(line):
         elif item in encoded_stopwords: # Removed the word if its a stopword.
             line[1].pop(index)
 
-        # elif re.match("http")
-        #     line[1].pop(index)
+        elif re.search("http", item): # Removes HTTPS and urls
+            line[1].pop(index)
 
     return line
 
