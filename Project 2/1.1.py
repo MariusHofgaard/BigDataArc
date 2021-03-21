@@ -27,6 +27,7 @@ from pyspark.sql.functions import countDistinct
 import re
 import base64
 
+
 from datetime import datetime
 from graphframes import *
 
@@ -55,12 +56,16 @@ def eliminate_unwanted_symbols(line):
     Output: Cleaned string containing only "DOT" characters, words and whitespaces.
     """
 
-    new_string = re.sub(r'[^\w\s]', '', str(line[1]))  # Removes everything that is not \w : word \s : spaces & \. : "DOT"
+    # need to remove things that is inside brackets etc. <p> <a href> etc
+    # print(line[1])
+    # line = re.sub(r'\([^)]*\)', '', str(line[1]))
+
+
+    new_string = re.sub(r'[^\w\s]', '', str(line[1]))  # Removes everything that is not \w : word \s : spaces & \. : "DOT". It seems to me that every sentence starts with bp - thus [3:]
+
 
     return (line[0],new_string)
 
-def trial (string):
-    return string
 
 
 # Perform this opperation to the posts dataset
@@ -84,52 +89,72 @@ def tokenize_line(line):
 tokenized = clean_text.map(lambda x: tokenize_line(x) )
 
 
-# in order to verify the
-for valiue in tokenized.take(3):
-    print(valiue)
+# in order to verify the outpyt
+for get_random_lines in tokenized.take(3):
+    print(get_random_lines)
 
-# Remove the tokens that are smaller than three characters long from the sequence of the tokens
-
-tokenized_length_over_3 = tokenized.filter(lambda token: (token[0], len(token[1]) > 3))
-
-# # reading the stop words file, encoding in ascii and representing as an array
+# Importing stopwords.
 stopwords = sc.textFile("./sourcefiles/stopwords.txt")  # From the github site
 encoded_stopwords = stopwords.map(lambda x: x.encode('ascii', 'ignore')).collect()
 
-unique_tokens = tokenized_length_over_3.distinct()  # Remove duplicates
-tuple_unique_tokens = unique_tokens.map(lambda line: line)  # Create tuples of terms (for compatibility later)
 
-def generate_sliding_windows(terms, window_size):
-    n_windows = (len(terms) - window_size) + 1
-    windows = []
-    for i in range(n_windows):
-        windows.append(terms[i:(i + window_size)])
-    return windows
+# Remove the tokens that are smaller than three characters long from the sequence of the tokens
+def remove_short_words(line):
+    """
 
-def generate_graph_tuples(windows):
-    graph = []
-    for window in windows:
-        for i in range(len(window)):
-            for j in range(i + 1, len(window)):
-                if i != j:
-                    graph.append((window[i], window[j]))  # Edge from i to j
-                    graph.append((window[j], window[i]))  # Edge from j to i
+    :param line: inp
+    :return:
+    """
+    for index,item in enumerate(line[1]): # enumerate the list for popping
+        if len(item) < 3:
+            line[1].pop(index)
 
-    return graph
+        elif item in encoded_stopwords: # Removed the word if its a stopword.
+            line[1].pop(index)
 
-windows = generate_sliding_windows(unique_tokens.collect(), 5)  # Generate list of windows
-graph = generate_graph_tuples(windows)  # Generate edge tuples
-graph_rdd = sc.parallelize(graph)  # Create rdd from graph (ie. edge tuples)
+        # elif re.match("http")
+        #     line[1].pop(index)
 
+    return line
+
+tokenized_length_over_3 = tokenized.map(lambda line: remove_short_words(line) )
+
+print(tokenized_length_over_3.count()) # Should return the same amount of rows, as the removed elements are within the row.
 
 
-node = spark.createDataFrame(tuple_unique_tokens, ['id'])  # Create DF of vertices (distinct terms)
-edge = spark.createDataFrame(graph_rdd, ['src', 'dst'])  # Create DF of edges (edge tuples rdd)
 
-g = GraphFrame(node, edge)  # Create graphframes graph of vertices and edges
 
-print("Pagerank started at {}".format(datetime.now().time()))
-pr = g.pageRank(resetProbability=0.15, tol=0.0001)
-print("Pagerank completed at {}".format(datetime.now().time()))
-print("Top 20 vertices with pagerank value below")
-pr.vertices.sort('pagerank', ascending=False).show()
+# def generate_sliding_windows(terms, window_size):
+#     n_windows = (len(terms) - window_size) + 1
+#     windows = []
+#     for i in range(n_windows):
+#         windows.append(terms[i:(i + window_size)])
+#     return windows
+#
+# def generate_graph_tuples(windows):
+#     graph = []
+#     for window in windows:
+#         for i in range(len(window)):
+#             for j in range(i + 1, len(window)):
+#                 if i != j:
+#                     graph.append((window[i], window[j]))  # Edge from i to j
+#                     graph.append((window[j], window[i]))  # Edge from j to i
+#
+#     return graph
+#
+# windows = generate_sliding_windows(unique_tokens.collect(), 5)  # Generate list of windows
+# graph = generate_graph_tuples(windows)  # Generate edge tuples
+# graph_rdd = sc.parallelize(graph)  # Create rdd from graph (ie. edge tuples)
+#
+#
+#
+# node = spark.createDataFrame(tuple_unique_tokens, ['id'])  # Create DF of vertices (distinct terms)
+# edge = spark.createDataFrame(graph_rdd, ['src', 'dst'])  # Create DF of edges (edge tuples rdd)
+#
+# g = GraphFrame(node, edge)  # Create graphframes graph of vertices and edges
+#
+# print("Pagerank started at {}".format(datetime.now().time()))
+# pr = g.pageRank(resetProbability=0.15, tol=0.0001)
+# print("Pagerank completed at {}".format(datetime.now().time()))
+# print("Top 20 vertices with pagerank value below")
+# pr.vertices.sort('pagerank', ascending=False).show()

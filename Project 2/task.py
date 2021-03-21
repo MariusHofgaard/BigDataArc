@@ -1,22 +1,18 @@
-
-import re
-def eliminate_punctuation_symbols(string):
+def remove_short_words(line):
     """
-    Input: string
-    Method: Removes all characters that are not: word characters, space characters or "DOT" aka "."
-    """
-    new_string = re.sub(r'[^\w\s\.]','',string)
 
-    return new_string
+    :param line: inp
+    :return:
+    """
+    try:
+        for index,item in enumerate(line[1]): # enumerate the list for popping
+            if len(item) < 3:
+                line[1].pop(index)
+    except:
+        pass
+
+    return line
 
 
 if __name__ == "__main__":
-    word_1 = """
-    def eliminate_punctuation_symbols(string):
-    Input: string
-            Method: Remov##"#es all characters that are not: word characters, s#("#YI¤pace characters or.
-    unwanted_symb/##"ols =
-    new_string = Regex.Replace(string, @"[^\w\s\.], );
-    """
-
-    print(eliminate_punctuation_symbols(word_1))
+    line = [a]
