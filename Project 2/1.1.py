@@ -79,14 +79,12 @@ def tokenize_line(line):
     """
     stringpart = re.split(' ' , str(line[1]))
 
-    return (line[0],line[1]) # Splits the line for \s : spaces +: split for every sequence of spaces.
+    return (line[0],stringpart) # Splits the line for \s : spaces +: split for every sequence of spaces.
 
 tokenized = clean_text.map(lambda x: tokenize_line(x) )
 
 
-# in order to see the output
-print(tokenized.count())
-
+# in order to verify the
 for valiue in tokenized.take(3):
     print(valiue)
 
