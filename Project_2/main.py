@@ -50,7 +50,9 @@ def eliminate_unwanted_symbols(line):
 
     Output: Cleaned string containing only "DOT" characters, words and whitespaces.
     """
+
     pre_processed = re.sub('<[^<]+?>', '', str(line[1][4:])) # removes html tags from text such as <p>, additionally removes teh first b character.
+    pre_processed = re.sub(r'#xA', '', pre_processed) # removes #xA
 
     new_string = re.sub(r'[^\w\s]', '',pre_processed)  # Removes everything that is not \w : word \s : spaces & \. : "DOT". It seems to me that every sentence starts with bp - thus [3:]
 
