@@ -34,7 +34,7 @@ sc = SparkContext()
 spark = SparkSession(sc)
 
 # import the posts
-posts_file = sc.textFile("/sourcefiles/posts.csv")
+posts_file = sc.textFile("./sourcefiles/posts.csv")
 posts_rdd = posts_file.map(lambda line: line.split("\t"))
 
 # Reomoving header from posts
@@ -46,7 +46,7 @@ posts_lower = posts_rdd.map(lambda line: (line[0], base64.b64decode(line[5]).low
 
 # Clean text for punctuation and symbols except from "DOT"
 
-def eliminate_unwanted_symbols(string):
+def eliminate_unwanted_symbols(line):
     """
     Task 1
     Input: string, could be the entire document
@@ -55,14 +55,19 @@ def eliminate_unwanted_symbols(string):
     Output: Cleaned string containing only "DOT" characters, words and whitespaces.
     """
 
-    new_string = re.sub(r'[^\w\s\.]', '', string)  # Removes everything that is not \w : word \s : spaces & \. : "DOT"
-    return new_string
+    new_string = re.sub(r'[^\w\s]', '', str(line[1]))  # Removes everything that is not \w : word \s : spaces & \. : "DOT"
+
+    return (line[0],new_string)
+
+def trial (string):
+    return string
 
 
 # Perform this opperation to the posts dataset
 
-clean_text = posts_lower.map(lambda line: (line[0], eliminate_unwanted_symbols(line[1])))
-
+clean_text = posts_lower.map(lambda line: eliminate_unwanted_symbols(line))
+# clean_text = posts_lower.map(lambda line: (line[0], trial(line[1])))
+print(clean_text.count())
 # Tokenise the output of the previous step (the separator of tokens is the 'WHITESPACE' character); at this stage should have a sequence of tokens
 
 
@@ -72,17 +77,25 @@ def tokenize_line(line):
     Input: text, as string - w/o
     return: List of tokens
     """
+    stringpart = re.split(' ' , str(line[1]))
 
-    return re.split(r'\s+' , line)  # Splits the line for \s : spaces +: split for every sequence of spaces.
+    return (line[0],line[1]) # Splits the line for \s : spaces +: split for every sequence of spaces.
 
-tokenized = clean_text.map(lambda line: (line[0], tokenize_line(line[1])))
+tokenized = clean_text.map(lambda x: tokenize_line(x) )
+
+
+# in order to see the output
+print(tokenized.count())
+
+for valiue in tokenized.take(3):
+    print(valiue)
 
 # Remove the tokens that are smaller than three characters long from the sequence of the tokens
 
 tokenized_length_over_3 = tokenized.filter(lambda token: (token[0], len(token[1]) > 3))
 
 # # reading the stop words file, encoding in ascii and representing as an array
-stopwords = sc.textFile("/sourcefiles/stopwords.txt")  # From the github site
+stopwords = sc.textFile("./sourcefiles/stopwords.txt")  # From the github site
 encoded_stopwords = stopwords.map(lambda x: x.encode('ascii', 'ignore')).collect()
 
 unique_tokens = tokenized_length_over_3.distinct()  # Remove duplicates
