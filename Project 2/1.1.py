@@ -62,7 +62,7 @@ def eliminate_unwanted_symbols(line):
 
     new_string = re.sub(r'xaxa', " ", new_string) # After looking at the output there is a lot of xaxa w/o meaning. Seems to be a bit dangerous - as there would be words with xa.
 
-    return (line[0],new_string) #
+    return (line[0],new_string)
 
 
 
