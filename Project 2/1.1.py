@@ -28,6 +28,10 @@ import re
 import base64
 
 
+# For enabling the requested running  method.
+# post_id_input = int(sys.argv[1]) # todo test this method
+
+
 from datetime import datetime
 from graphframes import *
 
@@ -41,7 +45,6 @@ posts_rdd = posts_file.map(lambda line: line.split("\t"))
 # Reomoving header from posts
 # posts_rdd = posts_rdd.zipWithIndex().filter(lambda tup: tup[1] > 0).map(lambda tup: tup[0])
 
-# TODO lower of all text
 posts_lower = posts_rdd.map(lambda line: (line[0], base64.b64decode(line[5]).lower()))
 
 
@@ -56,7 +59,7 @@ def eliminate_unwanted_symbols(line):
     Output: Cleaned string containing only "DOT" characters, words and whitespaces.
     """
 
-    pre_processed = re.sub('<[^<]+?>', '', str(line[1][3:])) # removes html tags from text such as <p>, additionally removes teh first b character.
+    pre_processed = re.sub('<[^<]+?>', '', str(line[1][4:])) # removes html tags from text such as <p>, additionally removes teh first b character.
 
     new_string = re.sub(r'[^\w\s]', '',pre_processed)  # Removes everything that is not \w : word \s : spaces & \. : "DOT". It seems to me that every sentence starts with bp - thus [3:]
 
@@ -69,11 +72,10 @@ def eliminate_unwanted_symbols(line):
 # Perform this opperation to the posts dataset
 
 clean_text = posts_lower.map(lambda line: eliminate_unwanted_symbols(line))
-# clean_text = posts_lower.map(lambda line: (line[0], trial(line[1])))
-print(clean_text.count())
+
+
+
 # Tokenise the output of the previous step (the separator of tokens is the 'WHITESPACE' character); at this stage should have a sequence of tokens
-
-
 def tokenize_line(line):
     """
     Task 2
@@ -83,19 +85,16 @@ def tokenize_line(line):
     stringpart = re.split(' ' , str(line[1]))
 
     return (line[0],stringpart) # Splits the line for \s : spaces +: split for every sequence of spaces.
-
 tokenized = clean_text.map(lambda x: tokenize_line(x) )
 
 
-# in order to verify the outpyt
-for get_random_lines in tokenized.take(3):
-    print(get_random_lines)
 
 # Importing stopwords.
 stopwords = sc.textFile("./sourcefiles/stopwords.txt")  # From the github site. Can't see the reasoning in  hardcoding.
 
 
 encoded_stopwords = stopwords.map(lambda x: x.encode('ascii', 'ignore')).collect()
+# print(encoded_stopwords)
 
 
 # Remove the tokens that are smaller than three characters long from the sequence of the tokens
@@ -109,7 +108,7 @@ def remove_short_words(line):
         if len(item) < 3:
             line[1].pop(index)
 
-        elif item in encoded_stopwords: # Removed the word if its a stopword.
+        elif item in encoded_stopwords: # Removed the word if it is a stopword.
             line[1].pop(index)
 
         elif re.search("http", item): # Removes HTTPS and urls
@@ -119,43 +118,9 @@ def remove_short_words(line):
 
 tokenized_length_over_3 = tokenized.map(lambda line: remove_short_words(line) )
 
-print(tokenized_length_over_3.count()) # Should return the same amount of rows, as the removed elements are within the row.
+# print(tokenized_length_over_3.count()) # Should return the same amount of rows, as the removed elements are within the row.
 
 
-### spark-submit main.py --input_path /home/users/data --post_id ID_OF_POST
+### We did not manage to get the graphframe to function. The following code is pseudo.
 
 
-# def generate_sliding_windows(terms, window_size):
-#     n_windows = (len(terms) - window_size) + 1
-#     windows = []
-#     for i in range(n_windows):
-#         windows.append(terms[i:(i + window_size)])
-#     return windows
-#
-# def generate_graph_tuples(windows):
-#     graph = []
-#     for window in windows:
-#         for i in range(len(window)):
-#             for j in range(i + 1, len(window)):
-#                 if i != j:
-#                     graph.append((window[i], window[j]))  # Edge from i to j
-#                     graph.append((window[j], window[i]))  # Edge from j to i
-#
-#     return graph
-#
-# windows = generate_sliding_windows(unique_tokens.collect(), 5)  # Generate list of windows
-# graph = generate_graph_tuples(windows)  # Generate edge tuples
-# graph_rdd = sc.parallelize(graph)  # Create rdd from graph (ie. edge tuples)
-#
-#
-#
-# node = spark.createDataFrame(tuple_unique_tokens, ['id'])  # Create DF of vertices (distinct terms)
-# edge = spark.createDataFrame(graph_rdd, ['src', 'dst'])  # Create DF of edges (edge tuples rdd)
-#
-# g = GraphFrame(node, edge)  # Create graphframes graph of vertices and edges
-#
-# print("Pagerank started at {}".format(datetime.now().time()))
-# pr = g.pageRank(resetProbability=0.15, tol=0.0001)
-# print("Pagerank completed at {}".format(datetime.now().time()))
-# print("Top 20 vertices with pagerank value below")
-# pr.vertices.sort('pagerank', ascending=False).show()
